@@ -1,11 +1,12 @@
 package application;
 
-import services.FileHandlingService;
+import services.*;
+import entities.Task;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
-import entities.Task;
 
 public class Main {
     public static void main(String [] args) {
@@ -18,6 +19,8 @@ public class Main {
 
         while(true) {
             try(Scanner sc = new Scanner(System.in)) {
+                UIService.clearScreen();
+
                 char option;
 
                 if(!homeTaskDir.exists()) {
@@ -32,32 +35,31 @@ public class Main {
                 System.out.println("Create(C) | Edit(E) | Quit(Q)");
                 option = sc.nextLine().toUpperCase().charAt(0);
 
-                boolean append = true;
-
-                if(option == 'C') {
-                    append = false;
-                } else if(option == 'E') {
-                    append = true;
-                } else if(option == 'Q') {
+                if(option == 'Q') {
                     System.exit(0);
-                } else {
+                } else if(option != 'C' && option != 'E'){
                     throw new InputMismatchException("The option '" + option + "' does not exist.");
                 }
 
                 System.out.print("Name of the file you want to create/edit: ");
                 String fileName = sc.nextLine();
 
-                bw = new BufferedWriter(new FileWriter(homeTaskDir + "\\" + fileName + ".txt", append));
-                br = new BufferedReader(new FileReader(homeTaskDir + "\\" + fileName + ".txt"));
+                File targetFile = new File(homeTaskDir + "\\" + fileName + ".txt");
 
+                if(option == 'E' && !targetFile.exists()) {
+                    throw new FileNotFoundException("You cannot edit a file that does not exist.");
+                } else if(option == 'C' && targetFile.exists()) {
+                    throw new FileAlreadyExistsException("A file with that name already exists.");
+                }
+
+                UIService.clearScreen();
+
+                br = new BufferedReader(new FileReader(targetFile));
                 List<Task> tasks = FileHandlingService.readAllLines(br);
 
-                int counter = 1;
+                bw = new BufferedWriter(new FileWriter(targetFile, false));
 
-                for(Task task : tasks) {
-                    System.out.println(task.getText());
-                    counter++;
-                }
+                UIService.printLines(tasks);
 
                 System.out.println("Write(W) | Check(C) | Delete(D) | Back(B)");
                 option = sc.nextLine().toUpperCase().charAt(0);
@@ -73,9 +75,25 @@ public class Main {
                         tasks.add(new Task(text));
                     }
 
-                    // FIXME: IT'S NOT APPENDING TASK NUMBERS PROPERLY
+                    FileHandlingService.write(bw, tasks);
+                } else if(option == 'C') {
+                    while(true) {
+                        System.out.println("Quit (Q)");
+                        System.out.println("Select the line want to check: ");
+                        String lStr = sc.nextLine();
 
-                    FileHandlingService.write(bw, tasks, counter);
+                        if(lStr.equalsIgnoreCase("Q")) break;
+
+                        int l = Integer.parseInt(lStr);
+
+                        String line = tasks.get(l-1).getText();
+                        tasks.get(l-1).setText(line + " | \u001B[32mDONE\u001B[0m");
+
+                        FileHandlingService.write(bw, tasks);
+
+                        UIService.clearScreen();
+                        UIService.printLines(tasks);
+                    }
                 }
 
             } catch(FileNotFoundException e) {
@@ -83,7 +101,7 @@ public class Main {
             } catch(IOException e) {
                 System.out.println("Error: " + e.getMessage());
             } catch(Exception e) {
-                System.out.println("Error:" + e.getMessage());
+                System.out.println("Error: " + e.getMessage());
                 break;
             } finally {
                 try {
