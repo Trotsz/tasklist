@@ -11,6 +11,7 @@ import java.util.*;
 public class Main {
     public static void main(String [] args) {
         Locale.setDefault(Locale.US);
+
         FileSystemView view = FileSystemView.getFileSystemView();
         File homeTaskDir = new File(view.getHomeDirectory().toString() + "\\Tasks");
 
@@ -54,8 +55,12 @@ public class Main {
 
                 UIService.clearScreen();
 
-                br = new BufferedReader(new FileReader(targetFile));
-                List<Task> tasks = FileHandlingService.readAllLines(br);
+                List<Task> tasks = new ArrayList<>();
+
+                if(option == 'E') {
+                    br = new BufferedReader(new FileReader(targetFile));
+                    tasks = FileHandlingService.readAllLines(br);
+                }
 
                 bw = new BufferedWriter(new FileWriter(targetFile, false));
 
@@ -89,19 +94,19 @@ public class Main {
                         String line = tasks.get(l-1).getText();
                         tasks.get(l-1).setText(line + " | \u001B[32mDONE\u001B[0m");
 
-                        FileHandlingService.write(bw, tasks);
-
                         UIService.clearScreen();
                         UIService.printLines(tasks);
                     }
-                }
 
+                    FileHandlingService.write(bw, tasks);
+                }
             } catch(FileNotFoundException e) {
                 System.out.println("File not found!");
             } catch(IOException e) {
                 System.out.println("Error: " + e.getMessage());
             } catch(Exception e) {
                 System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
                 break;
             } finally {
                 try {
