@@ -11,7 +11,8 @@ public class UIService {
 
     public static void printLines(List<Task> tasks) {
         for(Task task : tasks) {
-            System.out.println(task.getText());
+            String text = task.getText().split(":").length > 1 ? task.getText().split(":")[1] : task.getText();
+            System.out.println((tasks.indexOf(task) + 1) + ": " + text);
         }
     }
 }

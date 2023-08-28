@@ -79,12 +79,10 @@ public class Main {
 
                         tasks.add(new Task(text));
                     }
-
-                    FileHandlingService.write(bw, tasks);
                 } else if(option == 'C') {
                     while(true) {
                         System.out.println("Quit (Q)");
-                        System.out.println("Select the line want to check: ");
+                        System.out.print("Insert the line number you want to check: ");
                         String lStr = sc.nextLine();
 
                         if(lStr.equalsIgnoreCase("Q")) break;
@@ -97,9 +95,23 @@ public class Main {
                         UIService.clearScreen();
                         UIService.printLines(tasks);
                     }
+                } else if(option == 'D') {
+                    while(true) {
+                        System.out.println("Quit(Q)");
+                        System.out.print("Insert the line number you want to remove: ");
+                        String lStr = sc.nextLine();
 
-                    FileHandlingService.write(bw, tasks);
+                        if(lStr.equalsIgnoreCase("Q")) break;
+
+                        int l = Integer.parseInt(lStr);
+                        tasks.remove(l-1);
+
+                        UIService.clearScreen();
+                        UIService.printLines(tasks);
+                    }
                 }
+
+                FileHandlingService.write(bw, tasks);
             } catch(FileNotFoundException e) {
                 System.out.println("File not found!");
             } catch(IOException e) {
