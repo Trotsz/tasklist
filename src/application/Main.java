@@ -18,8 +18,10 @@ public class Main {
         BufferedReader br = null;
         BufferedWriter bw = null;
 
+        Scanner sc = new Scanner(System.in);
+
         while(true) {
-            try(Scanner sc = new Scanner(System.in)) {
+            try {
                 UIService.clearScreen();
 
                 char option;
@@ -129,5 +131,7 @@ public class Main {
                 }
             }
         }
+
+        sc.close();
     }
 }
