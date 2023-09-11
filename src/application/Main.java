@@ -13,7 +13,9 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         FileSystemView view = FileSystemView.getFileSystemView();
-        File homeTaskDir = new File(view.getHomeDirectory().toString() + "\\Tasks");
+        File homeTaskDir = new File(view.getHomeDirectory().toString() + "/Tasks");
+
+        List<Task> tasks = new ArrayList<>();
 
         BufferedReader br = null;
         BufferedWriter bw = null;
@@ -47,7 +49,7 @@ public class Main {
                 System.out.print("Name of the file you want to create/edit: ");
                 String fileName = sc.nextLine();
 
-                File targetFile = new File(homeTaskDir + "\\" + fileName + ".txt");
+                File targetFile = new File(homeTaskDir + "/" + fileName + ".txt");
 
                 if(option == 'E' && !targetFile.exists()) {
                     throw new FileNotFoundException("You cannot edit a file that does not exist.");
@@ -56,8 +58,6 @@ public class Main {
                 }
 
                 UIService.clearScreen();
-
-                List<Task> tasks = new ArrayList<>();
 
                 if(option == 'E') {
                     br = new BufferedReader(new FileReader(targetFile));
@@ -126,6 +126,7 @@ public class Main {
                 try {
                     if(br != null) br.close();
                     if(bw != null) bw.close();
+                    FileHandlingService.write(bw, tasks);
                 } catch(IOException e) {
                     System.out.println("Error: " + e.getMessage());
                 }
